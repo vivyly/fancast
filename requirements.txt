@@ -1,0 +1,9 @@
+Django==1.5.4
+Jinja2==2.7.1
+MarkupSafe==0.18
+astroid==1.0.0
+binaryornot==0.2.0
+cookiecutter==0.6.4
+logilab-common==0.60.0
+pylint==1.0.0
+wsgiref==0.1.2
