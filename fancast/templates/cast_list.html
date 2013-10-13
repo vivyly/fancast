@@ -8,9 +8,17 @@
 {% endblock css %}
 
 {% block content %}
+<div class="row grey9box">
+  <div class="row greyCbox">
+    {{ object.origin }} : {{ object.origin_title}}
+  </div>
+  <div class="row greyFbox">
+    {{ object.derivation }} : {{ object.derived_title }}
+  </div>
+</div>
 <div class="castCol row grey9box">
 {% for character in object.characters %}
-<div class="span3 greyAbox">
+<div class="span3 greyAbox staticCol">
   <div class="characterCol row greyCbox">
     <div class="media">
       <div class="pull-left">
@@ -22,7 +30,7 @@
     </div>
   </div>
   {% for points, actor in character.actors_ordered %}
-    <div class="characterCol row greyFbox {% if forloop.counter0 > 6 %}hide{% endif %}">
+    <div class="characterCol row greyFbox {% if forloop.counter0 >= 5 %}hide{% endif %}">
       <div class="media" title="{{ points }}">
         {% if forloop.counter0 < 3  %}
         <div class="pull-left">
@@ -33,7 +41,7 @@
           <h4>{{ actor.name }}</h4>
         </div>
         <div class="mediaContent">
-          <div class="center span2">
+          <div class="center voteWidth">
             <div class="upvote pull-left"></div>
             <div class="downvote pull-left"></div>
             <div class="points pull-left">{{ points }}</div>
@@ -42,9 +50,11 @@
       </div>
     </div>
   {% endfor %}
-  {% if character.actors|length > 6  %}
+  {% if character.actors|length > 5 %}
     <div class="row greyFbox">
-      <div class="btn">Show More</div>
+      <div class="btnWidth center">
+        <div class="btn">Show More</div>
+      </div>
     </div>
   {% endif %}
   </div>

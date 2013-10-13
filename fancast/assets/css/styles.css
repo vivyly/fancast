@@ -1,4 +1,8 @@
 /*! project specific CSS goes here. */
+body{
+  background-color:#0E1A24;
+}
+
 .grey9box, .greyAbox, .greyCbox, .greyFbox{
   border-radius:.3em; 
   padding:.3em;
@@ -6,15 +10,15 @@
 }
 
 .grey9box{
-  background-color:#999;
+  background-color:#315B7E;
 }
 
 .greyAbox{
-  background-color:#AAA;
+  background-color:#4682B4;
 }
 
 .greyCbox{
-  background-color:#CCC;
+  background-color:#87CEEB;
 }
 
 .greyFbox{
@@ -25,8 +29,14 @@
   width:2000px;
 }
 
+.staticCol{
+  max-width:15em;
+}
+
 .characterCol .pull-left{
   margin-right:auto;
+  max-height:10em;
+  overflow:hidden;
 } 
 
 .upvote{
@@ -64,3 +74,10 @@
   margin: 0 auto;
 }
 
+.btnWidth{
+  width:8em;
+}
+
+.voteWidth{
+  width:7em;
+}
