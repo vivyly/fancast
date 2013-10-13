@@ -1,1 +1,66 @@
 /*! project specific CSS goes here. */
+.grey9box, .greyAbox, .greyCbox, .greyFbox{
+  border-radius:.3em; 
+  padding:.3em;
+  margin:.3em;
+}
+
+.grey9box{
+  background-color:#999;
+}
+
+.greyAbox{
+  background-color:#AAA;
+}
+
+.greyCbox{
+  background-color:#CCC;
+}
+
+.greyFbox{
+  background-color:#FFF;
+}
+
+.castCol{
+  width:2000px;
+}
+
+.characterCol .pull-left{
+  margin-right:auto;
+} 
+
+.upvote{
+  width:0;
+  height:0;
+  cursor:pointer;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 20px solid #666;
+}
+
+.upvote:hover{
+  border-bottom: 20px solid #98FB98;
+}
+
+.downvote{
+  width:0;
+  height:0;
+  cursor:pointer;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-top: 20px solid #666;
+}
+
+.downvote:hover{
+  border-top: 20px solid #FF4500;
+}
+
+.points{
+  margin: 0 .5em;
+}
+
+.center{
+  float:none;
+  margin: 0 auto;
+}
+

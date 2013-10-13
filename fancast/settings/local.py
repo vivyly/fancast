@@ -1,5 +1,7 @@
+import os
 from .base import *
 
+ROOT = os.path.abspath(os.path.dirname(__file__))
 
 ADMINS = (
     ('Vivien Yang', 'vivyly9@gmail.com'),
@@ -9,11 +11,11 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'fancast',
-        'USER': 'postgres',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(ROOT, 'fancast.db'),
+        'USER': '',
         'PASSWORD': '',
-        'HOST': 'localhost',
+        'HOST': '',
         'PORT': '',
     }
 }
