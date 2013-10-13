@@ -59,9 +59,8 @@ class Character(BaseModel):
         prospects = Prospect.objects.filter(character=self)
         actors = []
         for prospect in prospects:
-            rating = prospect.upvotes - prospect.downvotes
-            actors.append([rating, prospect.actor])
-        sorted_actors = sorted(actors, key=itemgetter(0))
+            actors.append([prospect.totalvotes, prospect.actor])
+        sorted_actors = [actor for actor in sorted(actors, key=itemgetter(0))]
         sorted_actors.reverse()
         return sorted_actors
 
@@ -88,6 +87,10 @@ class Prospect(BaseModel):
     def downvotes(self):
         return ProspectVote.objects.filter(
                 prospect=self, vote_status=False).count()
+
+    @property
+    def totalvotes(self):
+        return self.upvotes - self.downvotes
 
 
 class ProspectVote(models.Model):

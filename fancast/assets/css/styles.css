@@ -25,6 +25,21 @@ body{
   background-color:#FFF;
 }
 
+.marginp5{
+  margin:.5em;
+}
+.paddingp5{
+  padding:.5em;
+}
+
+/**CSS dedicated to the projects page **/
+
+.smallThumb{
+  max-height:5em;
+  overflow:hidden;
+}
+
+/**CSS dedicated to the casting page **/
 .castCol{
   width:2000px;
 }
