@@ -7,6 +7,13 @@
 <link href="{%  static 'css/style.css' %}" rel="stylesheet">
 {% endblock css %}
 
+{% block js_head %}
+{{ block.super }}
+<script src="{% static 'js/scripts.js' %}"></script>
+{% endblock js_head %}
+
+{% block ng_app %}casting.app.resource{% endblock ng_app %}
+
 {% block content %}
 <div class="row grey9box">
   <div class="row greyCbox">
@@ -16,48 +23,51 @@
     {{ object.derivation }} : {{ object.derived_title }}
   </div>
 </div>
-<div class="castCol row grey9box">
-{% for character in object.characters %}
-<div class="span3 greyAbox staticCol">
-  <div class="characterCol row greyCbox">
-    <div class="media">
-      <div class="pull-left">
-        <img class="media-object" src="{{ character.image }}"/>
-      </div>
-      <div class="text-center namePadding">
-        <h4>{{ character.name }}</h4>
-      </div>
-    </div>
-  </div>
-  {% for points, actor in character.actors_ordered %}
-    <div class="characterCol row greyFbox {% if forloop.counter0 >= 5 %}hide{% endif %}">
-      <div class="media" title="{{ points }}">
-        {% if forloop.counter0 < 3  %}
-        <div class="pull-left">
-          <img class="media-object" src="{{ actor.image }}"/>
-        </div>
-        {% endif %}
-        <div class="text-center namePadding">
-          <h4>{{ actor.name }}</h4>
-        </div>
-        <div class="mediaContent">
-          <div class="center voteWidth">
-            <div class="upvote pull-left"></div>
-            <div class="downvote pull-left"></div>
-            <div class="points pull-left">{{ points }}</div>
+{% verbatim %}
+<div class="castCol row grey9box" ng-controller="CastingController">
+    <div class="span3 greyAbox staticCol" 
+        ng-repeat="character in characters| orderBy:'order'" >
+      <div class="characterCol row greyCbox">
+        <div class="media">
+          <div class="pull-left">
+              <img class="media-object" src="{{ character.image }}"/>
+          </div>
+          <div class="text-center namePadding">
+              <h4>{{ character.name }}</h4>
           </div>
         </div>
       </div>
+      <div class="characterCol row greyFbox" 
+                                ng-repeat="actor in character.actors">
+            <div class="media" title="{{ actor.name }}">
+            <div class="pull-left">
+                <img class="media-object" src="{{ actor.image }}"/>
+            </div>
+            <div class="text-center namePadding">
+              <h4>{{ actor.name }}</h4>
+            </div>
+            <div class="mediaContent">
+              <div class="center voteWidth">
+                <div class="upvote pull-left"></div>
+                <div class="downvote pull-left"></div>
+                <div class="points pull-left">{{ points }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
-  {% endfor %}
-  {% if character.actors|length > 5 %}
-    <div class="row greyFbox">
-      <div class="btnWidth center">
-        <div class="btn">Show More</div>
-      </div>
-    </div>
-  {% endif %}
-  </div>
-{% endfor %}
 </div>
+{% endverbatim %}
 {% endblock content %}
+
+{% block javascript %}
+<script>
+    angular.element(document).ready(function(){
+        var app = angular.module("casting.app.resource",[]);
+        app.config(["$httpProvider", function($httpProvider){
+            $httpProvider.defaults.headers.common['X-CSRFToken'] = "{{ csrf_token|escapejs}}";
+        }]);
+        angular.bootstrap(document, ["casting.app.resource"]);
+    });
+</script>
+{% endblock javascript %}

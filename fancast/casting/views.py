@@ -5,7 +5,8 @@ from rest_framework import (viewsets,
 
 from .models import (Project,
                      Character,
-                     Actor)
+                     Actor,
+                     Prospect)
 from .serializers import (ProjectSerializer,
                           CharacterSerializer,
                           ActorSerializer)
@@ -50,12 +51,26 @@ class CharacterDetail(generics.RetrieveAPIView):
         return Character.objects.none()
 
 class ActorViewSet(generics.ListAPIView):
+    model = Actor
     serializer_class = ActorSerializer
     def get_queryset(self):
         slug = self.kwargs.get('slug')
         if slug:
             character = Character.objects.get(slug=slug)
-            return character.actors
+            eligible_actors = []
+            for actor in character.actors:
+                try:
+                    prospect = Prospect.objects.get(actor = actor,
+                                                    character = character)
+                    actor.upvotes = prospect.upvotes
+                    actor.downvotes = prospect.downvotes
+                    actor.total = actor.total
+                except Prospect.DoesNotExist:
+                    actor.upvotes = 0
+                    actor.downvotes = 0
+                    actor.total = 0
+                eligible_actors.append(actor)
+            return eligible_actors
         else:
             return Character.objects.none()
 

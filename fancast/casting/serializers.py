@@ -12,15 +12,18 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
                     'origin_title', 'derived_title' )
 
 
-class CharacterSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Character
-        fields = ('slug', 'name', 'normalized',
-                    'image', 'description', 'project', 'order')
-
-
-class ActorSerializer(serializers.HyperlinkedModelSerializer):
+class ActorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Actor
         fields = ('slug', 'name', 'normalized',
                     'image', 'description')
+
+
+class CharacterSerializer(serializers.ModelSerializer):
+    actors = ActorSerializer(many=True)
+    class Meta:
+        model = Character
+        fields = ('slug', 'name', 'normalized',
+                    'image', 'description', 'project', 'order', 'actors')
+
+

@@ -123,10 +123,11 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'rest_framework',
     'south',
-    'fancast.casting',
 )
 
-PROJECT_APPS = ()
+PROJECT_APPS = (
+    'fancast.casting',
+)
 
 INSTALLED_APPS += PROJECT_APPS
 
@@ -168,10 +169,10 @@ REST_FRAMEWORK = {
 
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    #'DEFAULT_PERMISSION_CLASSES': [
-    #   'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    #]
-    "DEFAULT_PERMISSION_CLASSES": ('rest_framework.permissions.IsAdminUser',),
+    'DEFAULT_PERMISSION_CLASSES': [
+       'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+    #"DEFAULT_PERMISSION_CLASSES": ('rest_framework.permissions.IsAdminUser',),
     "PAGINATE_BY":10
 
 }
