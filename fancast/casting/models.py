@@ -55,6 +55,10 @@ class Character(BaseModel):
         return Actor.objects.filter(prospect__character = self)
 
     @property
+    def prospects(self):
+        return Prospect.objects.filter(character=self)
+
+    @property
     def actors_ordered(self):
         prospects = Prospect.objects.filter(character=self)
         actors = []
@@ -95,6 +99,6 @@ class Prospect(BaseModel):
 
 class ProspectVote(models.Model):
     sessionid = models.CharField(max_length=255)
-    prospect = models.ForeignKey(Prospect)
+    prospect = models.ForeignKey(Prospect, related_name="votes")
     vote_status = models.BooleanField()
 

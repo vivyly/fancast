@@ -3,6 +3,8 @@ from rest_framework import serializers
 
 from .models import (Project,
                      Character,
+                     Prospect,
+                     ProspectVote,
                      Actor)
 
 class ProjectSerializer(serializers.HyperlinkedModelSerializer):
@@ -19,11 +21,24 @@ class ActorSerializer(serializers.ModelSerializer):
                     'image', 'description')
 
 
+class ProspectVoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProspectVote
+        fields = ('sessionid', 'vote_status')
+
+
+class ProspectSerializer(serializers.ModelSerializer):
+    actor = ActorSerializer()
+    votes = serializers.RelatedField(many=True)
+    class Meta:
+        model = Prospect
+        fields = ('actor', 'votes',)
+
 class CharacterSerializer(serializers.ModelSerializer):
-    actors = ActorSerializer(many=True)
+    prospects = ProspectSerializer(many=True)
     class Meta:
         model = Character
-        fields = ('slug', 'name', 'normalized',
-                    'image', 'description', 'project', 'order', 'actors')
+        fields = ('slug', 'name', 'normalized', 'image',
+                    'description', 'project', 'order', 'prospects')
 
 

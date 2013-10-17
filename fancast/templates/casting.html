@@ -38,19 +38,19 @@
         </div>
       </div>
       <div class="characterCol row greyFbox" 
-                                ng-repeat="actor in character.actors">
-            <div class="media" title="{{ actor.name }}">
+                                ng-repeat="prospect in character.prospects">
+            <div class="media" title="{{ prospect.actor.name }}">
             <div class="pull-left">
-                <img class="media-object" src="{{ actor.image }}"/>
+                <img class="media-object" src="{{ prospect.actor.image }}"/>
             </div>
             <div class="text-center namePadding">
-              <h4>{{ actor.name }}</h4>
+              <h4>{{ prospect.actor.name }}</h4>
             </div>
             <div class="mediaContent">
               <div class="center voteWidth">
                 <div class="upvote pull-left"></div>
                 <div class="downvote pull-left"></div>
-                <div class="points pull-left">{{ points }}</div>
+                <div class="points pull-left">{{ (prospect.votes | filter:{vote_status:true}).length }}</div>
               </div>
             </div>
           </div>
