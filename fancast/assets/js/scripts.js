@@ -19,58 +19,42 @@
 //        console.log("characters:"+$scope.characters);
 //    })
 
-angular.module("casting.app.resource",[]).
-    controller("CastingController", ["$scope","$http", 
-        function($scope, $http){
-            //get all chracters
-            $scope.characters = [];
-            $http.get('/api/characters/EyA9Ld9U7jknsdqioUWa4X').success(
-                function(data){
-                    $scope.characters = data.results;
-            })
-
-}]);
-
-
-
-
-//console.log('in script');
-//angular.module("casting.app.resource", [])
-//    .factory("castingFactory", ["$http", function($http){
-//    var castingFactory = {};
-//    castingFactory.getCharacters = function(id){
-//        return $http.get("/api/characters/"+id);  
-//    };
-//    
-//    castingFactory.getActors = function(id){
-//        return $http.get("/api/actors/"+id);
-//    };
+//angular.module("casting.app.resource",[]).
+//    controller("CastingController", ["$scope","$http", 
+//        function($scope, $http){
+//            //get all chracters
+//            $scope.characters = [];
+//            $http.get('/api/characters/EyA9Ld9U7jknsdqioUWa4X').success(
+//                function(data){
+//                    $scope.characters = data.results;
+//            })
 //
-//    return castingFactory
-//}])
-//    .controller("castingController", 
-//        ["$scope", "castingFactory", function($scope, castingFactory){
-//        $scope.characters;
-//        console.log('in controller');
-//        getCharacters();
-//        function getCharacters(){
-//            castingFactory.getCharacters()
-//            .success(function(data){
-//                $scope.characters = data.results;
-//            });
-//        }
-//        $scope.getActors = function(id){
-//            var character;
-//            for (var i = 0; i < $scope.characters.length; i++){
-//                var currentChar = $scope.characters[i];
-//                if (currentChar.slug === id){
-//                    castingFactory.getActors()
-//                    .success(function(data){
-//                        currentChar.actors = data.results;
-//                    });
-//                }
-//            }
-//        }
 //}]);
+
+
+
+var castingApp = angular.module('casting.app.resource', []);
+
+castingApp.factory("castingFactory", ["$http", function($http){
+    var apiBase = "/api/";
+    var castingFactory = {};
+    castingFactory.getCharacters = function(id){
+        return $http.get(apiBase+'characters/EyA9Ld9U7jknsdqioUWa4X');
+    };
+    return castingFactory;
+}]);
+    
+castingApp.controller("CastingController", ["$scope", "castingFactory",
+    function($scope, castingFactory){
+        $scope.characters = [];
+        getCharacters();
+        function getCharacters(){
+            castingFactory.getCharacters()
+                .success(function(result){
+                    $scope.characters = result.results;
+                    console.dir($scope.characters);
+                });
+        }
+}]);
 
 

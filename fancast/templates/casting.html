@@ -50,7 +50,7 @@
               <div class="center voteWidth">
                 <div class="upvote pull-left"></div>
                 <div class="downvote pull-left"></div>
-                <div class="points pull-left">{{ (prospect.votes | filter:{vote_status:true}).length }}</div>
+                <div class="points pull-left">{{ prospect.votes  }}</div>
               </div>
             </div>
           </div>
@@ -62,12 +62,12 @@
 
 {% block javascript %}
 <script>
-    angular.element(document).ready(function(){
-        var app = angular.module("casting.app.resource",[]);
-        app.config(["$httpProvider", function($httpProvider){
-            $httpProvider.defaults.headers.common['X-CSRFToken'] = "{{ csrf_token|escapejs}}";
-        }]);
-        angular.bootstrap(document, ["casting.app.resource"]);
-    });
+//    angular.element(document).ready(function(){
+//        var app = angular.module("casting.app.resource",[]);
+//        app.config(["$httpProvider", function($httpProvider){
+//            $httpProvider.defaults.headers.common['X-CSRFToken'] = "{{ csrf_token|escapejs}}";
+//        }]);
+//        angular.bootstrap(document, ["casting.app.resource"]);
+//    });
 </script>
 {% endblock javascript %}
