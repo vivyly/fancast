@@ -44,12 +44,17 @@
                 <img class="media-object" src="{{ prospect.actor.image }}"/>
             </div>
             <div class="text-center namePadding">
-              <h4>{{ prospect.actor.name }}</h4>
+                <h4>{{ prospect.actor.name }}|{{ session }}</h4>
             </div>
             <div class="mediaContent">
               <div class="center voteWidth">
-                <div class="upvote pull-left"></div>
-                <div class="downvote pull-left"></div>
+                  <div ng-if="prospect.slug == $cookie.key() " 
+                      class="upvote pull-left"
+                      ng-click="vote(character.slug, prospect.slug, true)"></div>
+                  <div class="upvote pull-left upvote_highlight"
+                      ng-click="vote(character.slug, prospect.slug, true)"></div>
+                  <div class="downvote pull-left downvote_highlight"
+                      ng-click="vote(character.slug, prospect.slug, false)"></div>
                 <div class="points pull-left">{{ prospect.votes  }}</div>
               </div>
             </div>
@@ -62,12 +67,10 @@
 
 {% block javascript %}
 <script>
-//    angular.element(document).ready(function(){
-//        var app = angular.module("casting.app.resource",[]);
-//        app.config(["$httpProvider", function($httpProvider){
-//            $httpProvider.defaults.headers.common['X-CSRFToken'] = "{{ csrf_token|escapejs}}";
-//        }]);
-//        angular.bootstrap(document, ["casting.app.resource"]);
-//    });
+    angular.element(document).ready(function(){
+        castingApp.config(["$httpProvider", function($httpProvider){
+            $httpProvider.defaults.headers.common['X-CSRFToken'] = "{{ csrf_token|escapejs}}";
+        }]);
+    });
 </script>
 {% endblock javascript %}

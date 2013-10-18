@@ -1,15 +1,36 @@
-# Create your views here.
+import simplejson
+
 from django.views import generic
 from rest_framework import (viewsets,
-                            generics)
+                            generics,
+                            )
 
 from .models import (Project,
                      Character,
                      Actor,
-                     Prospect)
+                     Prospect,
+                     ProspectVote)
 from .serializers import (ProjectSerializer,
                           CharacterSerializer,
+                          ProspectSerializer,
                           ActorSerializer)
+
+from django.http import HttpResponse
+from django.template import RequestContext
+from django.shortcuts import render_to_response
+from django.views.decorators.csrf import (csrf_exempt,
+                                         requires_csrf_token)
+from rest_framework.renderers import JSONRenderer
+
+class JSONResponse(HttpResponse):
+    """
+    An HttpResponse that renders its content into JSON.
+    """
+    def __init__(self, data, **kwargs):
+        content = JSONRenderer().render(data)
+        kwargs['content_type'] = 'application/json'
+        super(JSONResponse, self).__init__(content, **kwargs)
+
 
 
 class ProjectListView(generic.ListView):
@@ -85,3 +106,30 @@ class ActorDetail(generics.RetrieveAPIView):
             except Actor.DoesNotExist:
                 pass
         return Actor.objects.none()
+
+
+@csrf_exempt
+@requires_csrf_token
+def vote(request, slug):
+    if request.method == "POST" or request.method == "PUT":
+        #this is probably not the right way to do it, need
+        #to figure out why post params are coming in as a string
+        #instead of a QueryDict
+        params = simplejson.loads(request.body)
+        vote_status = params.get('vote_status')
+        prospect = Prospect.objects.get(slug=slug)
+        sessionid = request.session.session_key
+        try:
+            prospect_vote = ProspectVote.objects.get(prospect=prospect,
+                                    sessionid=sessionid)
+        except ProspectVote.DoesNotExist:
+            prospect_vote = ProspectVote()
+            prospect_vote.sessionid = sessionid
+            prospect_vote.prospect = prospect
+        prospect_vote.vote_status = bool(vote_status)
+        prospect_vote.save()
+    prospects = Prospect.objects.filter(character=prospect.character)
+    serializer = ProspectSerializer(prospects, many=True)
+    serializer.is_valid()
+    return JSONResponse(serializer.data)
+

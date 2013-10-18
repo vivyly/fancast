@@ -32,7 +32,7 @@ class ProspectSerializer(serializers.ModelSerializer):
     votes = serializers.RelatedField(many=True)
     class Meta:
         model = Prospect
-        fields = ('actor', 'votes',)
+        fields = ('slug', 'actor', 'votes',)
 
 class CharacterSerializer(serializers.ModelSerializer):
     prospects = ProspectSerializer(many=True)
