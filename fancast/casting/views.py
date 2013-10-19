@@ -45,6 +45,10 @@ class ProjectDetailView(generic.DetailView):
     #template_name = "cast_list.html"
     template_name = "casting.html"
     context_object_name = "slug"
+    def get_context_data(self, **kwargs):
+        context = super(ProjectDetailView, self).get_context_data(**kwargs)
+        context['sessionID'] = self.request.COOKIES.get('sessionid')
+        return context
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -129,7 +133,7 @@ def vote(request, slug):
         prospect_vote.vote_status = bool(vote_status)
         prospect_vote.save()
     prospects = Prospect.objects.filter(character=prospect.character)
-    serializer = ProspectSerializer(prospects, many=True)
+    serializer = ProspectSerializer(prospects, many=True, context = {'request':request})
     serializer.is_valid()
     return JSONResponse(serializer.data)
 

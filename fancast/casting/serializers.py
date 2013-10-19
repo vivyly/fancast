@@ -27,12 +27,46 @@ class ProspectVoteSerializer(serializers.ModelSerializer):
         fields = ('sessionid', 'vote_status')
 
 
+
 class ProspectSerializer(serializers.ModelSerializer):
     actor = ActorSerializer()
-    votes = serializers.RelatedField(many=True)
+    upvotes = serializers.SerializerMethodField('get_upvotes')
+    downvotes = serializers.SerializerMethodField('get_downvotes')
+    total = serializers.SerializerMethodField('get_total')
+
+    has_upvoted = serializers.SerializerMethodField('get_has_upvoted')
+    has_downvoted = serializers.SerializerMethodField('get_has_downvoted')
     class Meta:
         model = Prospect
-        fields = ('slug', 'actor', 'votes',)
+        fields = ('slug', 'actor', 'upvotes', 'total', 'downvotes', 'has_upvoted', 'has_downvoted')
+
+    def get_upvotes(self, obj):
+        return obj.upvotes
+
+    def get_downvotes(self, obj):
+        return obj.downvotes
+
+    def get_has_upvoted(self, obj):
+        try:
+            request = self.context['request']
+            sessionid = request.COOKIES.get('sessionid')
+        except KeyError:
+            sessionid = ''
+        return any(ProspectVote.objects.filter(sessionid=sessionid,
+                                                    vote_status=True, prospect=obj))
+
+    def get_has_downvoted(self, obj):
+        try:
+            request = self.context['request']
+            sessionid = request.COOKIES.get('sessionid')
+        except KeyError:
+            sessionid = ''
+        return any(ProspectVote.objects.filter(sessionid=sessionid,
+                                                    vote_status=False, prospect=obj))
+
+    def get_total(self, obj):
+        return obj.totalvotes
+
 
 class CharacterSerializer(serializers.ModelSerializer):
     prospects = ProspectSerializer(many=True)

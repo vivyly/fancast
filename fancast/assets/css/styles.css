@@ -63,7 +63,7 @@ body{
   border-bottom: 20px solid #666;
 }
 
-.upvote:hover{
+.upvote:hover, .upvote_highlight{
   border-bottom: 20px solid #98FB98;
 }
 
@@ -76,7 +76,7 @@ body{
   border-top: 20px solid #666;
 }
 
-.downvote:hover{
+.downvote:hover, .downvote_highlight{
   border-top: 20px solid #FF4500;
 }
 
@@ -89,10 +89,11 @@ body{
   margin: 0 auto;
 }
 
-.btnWidth{
+.btnWidth, .voteWidth{
   width:8em;
 }
 
-.voteWidth{
+.addWidth{
   width:7em;
 }
+

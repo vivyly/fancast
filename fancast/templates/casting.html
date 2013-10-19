@@ -25,52 +25,70 @@
 </div>
 {% verbatim %}
 <div class="castCol row grey9box" ng-controller="CastingController">
-    <div class="span3 greyAbox staticCol" 
-        ng-repeat="character in characters| orderBy:'order'" >
-      <div class="characterCol row greyCbox">
-        <div class="media">
-          <div class="pull-left">
-              <img class="media-object" src="{{ character.image }}"/>
-          </div>
-          <div class="text-center namePadding">
-              <h4>{{ character.name }}</h4>
+  <div class="span3 greyAbox staticCol" 
+    ng-repeat="character in characters| orderBy:'order'" >
+    <div class="characterCol row greyCbox">
+      <div class="media">
+        <div class="pull-left">
+          <img class="media-object" src="{{ character.image }}"/>
+        </div>
+        <div class="text-center namePadding">
+          <h4>{{ character.name }}</h4>
+        </div>
+      </div>
+    </div>
+    <div class="characterCol row greyFbox" 
+      ng-repeat="prospect in character.prospects | orderBy:'-total'">
+      <div class="media" title="{{ prospect.actor.name }}">
+        <div class="pull-left">
+          <img class="media-object" src="{{ prospect.actor.image }}"/>
+        </div>
+        <div class="text-center namePadding">
+          <h4>{{ prospect.actor.name }}</h4>
+        </div>
+        <div class="mediaContent">
+          <div class="center voteWidth">
+            <div ng-show="!prospect.has_upvoted" 
+              class="upvote pull-left"
+              ng-click="vote(character.slug, prospect.slug, true)"></div>
+            <div ng-show="prospect.has_upvoted" 
+              class="upvote pull-left upvote_highlight"
+              ng-click="vote(character.slug, prospect.slug, true)"></div>
+
+            <div ng-show="prospect.has_downvoted"
+              class="downvote pull-left downvote_highlight"
+              ng-click="vote(character.slug, prospect.slug, false)"></div>
+            <div ng-show="!prospect.has_downvoted"
+              class="downvote pull-left"
+              ng-click="vote(character.slug, prospect.slug, false)"></div>
+            <div class="points pull-left">{{ prospect.total }}</div>
           </div>
         </div>
       </div>
-      <div class="characterCol row greyFbox" 
-                                ng-repeat="prospect in character.prospects">
-            <div class="media" title="{{ prospect.actor.name }}">
-            <div class="pull-left">
-                <img class="media-object" src="{{ prospect.actor.image }}"/>
-            </div>
-            <div class="text-center namePadding">
-                <h4>{{ prospect.actor.name }}|{{ session }}</h4>
-            </div>
-            <div class="mediaContent">
-              <div class="center voteWidth">
-                  <div ng-if="prospect.slug == $cookie.key() " 
-                      class="upvote pull-left"
-                      ng-click="vote(character.slug, prospect.slug, true)"></div>
-                  <div class="upvote pull-left upvote_highlight"
-                      ng-click="vote(character.slug, prospect.slug, true)"></div>
-                  <div class="downvote pull-left downvote_highlight"
-                      ng-click="vote(character.slug, prospect.slug, false)"></div>
-                <div class="points pull-left">{{ prospect.votes  }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
     </div>
+    <div class="row greyFbox">
+      <div class="center addWidth">
+        <div class="btn">
+          Add Actor
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endverbatim %}
 {% endblock content %}
 
 {% block javascript %}
 <script>
-    angular.element(document).ready(function(){
-        castingApp.config(["$httpProvider", function($httpProvider){
-            $httpProvider.defaults.headers.common['X-CSRFToken'] = "{{ csrf_token|escapejs}}";
-        }]);
-    });
+  angular.element(document).ready(function(){
+    castingApp.config(["$httpProvider", function($httpProvider){
+      $httpProvider.defaults.headers.common['X-CSRFToken'] = "{{ csrf_token|escapejs}}";
+    }]);
+  });
+  castingApp.constant("DjangoConstants",{
+    sessionID: '{{ sessionID }}',
+    projectId:'{{ object.slug }}'
+  });
+
 </script>
 {% endblock javascript %}

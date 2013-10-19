@@ -4,7 +4,7 @@ castingApp.factory("castingFactory", ["$http", function($http){
     var apiBase = "/api/";
     var castingFactory = {};
     castingFactory.getCharacters = function(id){
-        return $http.get(apiBase+'characters/EyA9Ld9U7jknsdqioUWa4X');
+        return $http.get(apiBase+'characters/'+id);
     };
     castingFactory.vote = function(prospect_id, vote_status){
         data = {"vote_status":vote_status?1:0};
@@ -13,37 +13,35 @@ castingApp.factory("castingFactory", ["$http", function($http){
                       data:data});
     };
     return castingFactory;
+}])
+.factory("Constants", ["DjangoConstants", 
+                        function(DjangoConstants){
+    var constants = {
+        sessionID: "sessionID",
+        projectId: "projectId"
+    };
+    angular.extend(constants, DjangoConstants);
+    return{
+        get: function(key){
+            return constants[key];
+        }
+    }
 }]);
 
-castingApp.factory("SessionIdService", function(){
-    var sessionID = '';
-    var sessionFactory = {};
-    sessionFactory.getSessionId = function(){
-        if (sessionID == '' || sessionID == null)
-            sessionID = localStorage.getItem("sessionid");
-        console.log("sessionID: " + sessionID);
-        return sessionID;
-    };
-    return sessionFactory;
-});
     
 castingApp.controller("CastingController", 
-        ["$scope", "castingFactory", "SessionIdService",
-    function($scope, castingFactory, SessionIdService){
+        ["$scope", "castingFactory", "Constants",
+    function($scope, castingFactory, Constants){
         $scope.characters = [];
+        $scope.projectId = Constants.get('projectId');
         getCharacters();
-        getSession(); 
         function getCharacters(){
-            castingFactory.getCharacters()
+            castingFactory.getCharacters($scope.projectId)
                 .success(function(result){
                     $scope.characters = result.results;
-                    console.dir($scope.characters);
                 });
         }
 
-        function getSession(){
-            SessionIdService.getSessionId();
-        }
     $scope.vote = function(character_id, prospect_id, vote_status){
         castingFactory.vote(prospect_id, vote_status)
             .success(function(result){
