@@ -51,17 +51,17 @@
           <div class="center voteWidth">
             <div ng-show="!prospect.has_upvoted" 
               class="upvote pull-left"
-              ng-click="vote(character.slug, prospect.slug, true)"></div>
+              ng-click="vote(character.slug, prospect.slug, 1)"></div>
             <div ng-show="prospect.has_upvoted" 
               class="upvote pull-left upvote_highlight"
-              ng-click="vote(character.slug, prospect.slug, true)"></div>
+              ng-click="vote(character.slug, prospect.slug, 0)"></div>
 
             <div ng-show="prospect.has_downvoted"
               class="downvote pull-left downvote_highlight"
-              ng-click="vote(character.slug, prospect.slug, false)"></div>
+              ng-click="vote(character.slug, prospect.slug, 0)"></div>
             <div ng-show="!prospect.has_downvoted"
               class="downvote pull-left"
-              ng-click="vote(character.slug, prospect.slug, false)"></div>
+              ng-click="vote(character.slug, prospect.slug, -1)"></div>
             <div class="points pull-left">{{ prospect.total }}</div>
           </div>
         </div>

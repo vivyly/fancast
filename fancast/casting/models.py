@@ -85,12 +85,12 @@ class Prospect(BaseModel):
     @property
     def upvotes(self):
         return ProspectVote.objects.filter(
-                prospect=self, vote_status=True).count()
+                prospect=self, vote_status=1).count()
 
     @property
     def downvotes(self):
         return ProspectVote.objects.filter(
-                prospect=self, vote_status=False).count()
+                prospect=self, vote_status=-1).count()
 
     @property
     def totalvotes(self):
@@ -100,5 +100,5 @@ class Prospect(BaseModel):
 class ProspectVote(models.Model):
     sessionid = models.CharField(max_length=255)
     prospect = models.ForeignKey(Prospect, related_name="votes")
-    vote_status = models.BooleanField()
+    vote_status = models.IntegerField()
 

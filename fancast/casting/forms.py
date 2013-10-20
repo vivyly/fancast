@@ -62,7 +62,7 @@ class AddActor(forms.Form):
             vote = ProspectVote()
             vote.prospect = prospect
             vote.sessionid = sessionid
-            vote.vote_status = True
+            vote.vote_status = 0
             vote.save()
         return character
 

@@ -2,8 +2,6 @@ import simplejson
 
 from django.views import generic
 from django.http import HttpResponse
-from django.template import RequestContext
-from django.shortcuts import render_to_response
 from django.views.decorators.csrf import (csrf_exempt,
                                          requires_csrf_token)
 from rest_framework import (viewsets,
@@ -124,7 +122,7 @@ def vote(request, slug):
         #to figure out why post params are coming in as a string
         #instead of a QueryDict
         params = simplejson.loads(request.body)
-        vote_status = params.get('vote_status')
+        vote_status = params.get('vote_status', 0)
         prospect = Prospect.objects.get(slug=slug)
         sessionid = request.session.session_key
         try:
@@ -134,7 +132,7 @@ def vote(request, slug):
             prospect_vote = ProspectVote()
             prospect_vote.sessionid = sessionid
             prospect_vote.prospect = prospect
-        prospect_vote.vote_status = bool(vote_status)
+        prospect_vote.vote_status = int(vote_status)
         prospect_vote.save()
     prospects = Prospect.objects.filter(character=prospect.character)
     serializer = ProspectSerializer(prospects, many=True,
@@ -161,6 +159,10 @@ def add_actor(request):
                                         context = {'request':request})
             serializer.is_valid()
             return JSONResponse(serializer.data)
+        else:
+            errors = [(k, v[0].__unicode__()) for k, v in
+                                                form.errors.items()]
+            return JSONResponse({'errors':errors})
     return JSONResponse({})
 
 @csrf_exempt
@@ -180,5 +182,8 @@ def add_character(request):
                                     context = {'request':request})
             serializer.is_valid()
             return JSONResponse(serializer.data)
-        print 'ERRORS: %s' % form.errors
+        else:
+            errors = [(k, v[0].__unicode__()) for k, v in
+                                                form.errors.items()]
+            return JSONResponse({'errors':errors})
     return JSONResponse({})

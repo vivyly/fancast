@@ -53,7 +53,7 @@ class ProspectSerializer(serializers.ModelSerializer):
         except KeyError:
             sessionid = ''
         return any(ProspectVote.objects.filter(sessionid=sessionid,
-                                                    vote_status=True, prospect=obj))
+                                         vote_status=1, prospect=obj))
 
     def get_has_downvoted(self, obj):
         try:
@@ -62,7 +62,7 @@ class ProspectSerializer(serializers.ModelSerializer):
         except KeyError:
             sessionid = ''
         return any(ProspectVote.objects.filter(sessionid=sessionid,
-                                                    vote_status=False, prospect=obj))
+                                        vote_status=-1, prospect=obj))
 
     def get_total(self, obj):
         return obj.totalvotes

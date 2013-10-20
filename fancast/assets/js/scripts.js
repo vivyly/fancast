@@ -9,7 +9,7 @@ castingApp.factory("CastingFactory",
         return $http.get(apiBase+'characters/'+id);
     };
     CastingFactory.vote = function(prospect_id, vote_status){
-        data = {"vote_status":vote_status?1:0};
+        data = {"vote_status":vote_status};
         return $http({url: apiBase+'vote/'+prospect_id,
                       method: 'POST',
                       data:data});
