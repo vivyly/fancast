@@ -1,8 +1,8 @@
 var Overlay = (function(){
-    current_status = false,
-    overlay_base = null,
-    init = function(){
-        console.log('INIT');
+    Overlay = {};
+    Overlay.open_status = false;
+    Overlay.open_form = '';
+    Overlay.init = function(){
         $('#dialog').dialog({
             autoOpen:false,
             modal:true,
@@ -10,19 +10,21 @@ var Overlay = (function(){
             hide:"blind"
         });
     },
-    show = function(){ 
-        console.log('SHOW');
-        $('#dialog').dialog("open");
+    Overlay.close = function(){
+        $('#dialog').dialog("close");
+        $(Overlay.open_form).addClass('hidden');
+        Overlay.open_status = false;
         return false;
     },
-    close = function(){
-        $('#dialog').dialog("close");
+    Overlay.show = function(open_form){ 
+        if (Overlay.open_status)
+            Overlay.close();
+        Overlay.open_form = open_form;
+        $(Overlay.open_form).removeClass('hidden');
+        $('#dialog').dialog("open");
+        Overlay.open_status = true;
         return false;
     };
-
-    return {
-        init: init,
-        show: show,
-        close: close
-    };
+    
+    return Overlay;
 })();

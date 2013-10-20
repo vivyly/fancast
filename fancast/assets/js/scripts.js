@@ -43,19 +43,30 @@ castingApp.factory("CastingFactory",
             }
         }
     };
+    CharacterHandler.addCharacter = function(new_character){
+        $rootScope.characters.push(new_character);
+    };
     return CharacterHandler;
 }])
-.factory("ActorResource", ["$resource", "CharacterHandler",
-        function($resource, CharacterHandler){
-    var addCharacterId = '';
-    return $resource('/add/actor/',{},{
+.factory("ActorResource", ["$resource", function($resource){
+    return $resource('/add/actor',{},{
         create:{method:'POST', isArray: true,
                 transformResponse:function(data, header){
                     var response = JSON.parse(data);
                     return response;
                 }
-        },
+        }
     });
+}])
+.factory("CharacterResource",['$resource', function($resource){
+    return $resource('/add/character', {}, {
+        create:{method:'POST', isArray: true,
+                transformResponse:function(data, header){
+                    var response = JSON.parse(data);
+                    return response;
+                }
+        }
+    });    
 }]);
 
     
@@ -76,23 +87,36 @@ castingApp.controller("CastingController",
                 CharacterHandler.updateCharacter(character_id, result);
             });
     };
-    $scope.openDialog = function(character_id){
-        CharacterHandler.addCharacterId = character_id;
-        Overlay.show();
+    $scope.openDialog = function(template, character_id){
+        var template_dom = $('#'+template);
+        $('#dialog').append(template_dom);
+        if (character_id)
+            CharacterHandler.addCharacterId = character_id;
+        Overlay.show('#'+template);
     };
 }]);
 
 castingApp.controller('CastingOverlay',
-    ['$scope', 'ActorResource','CharacterHandler',
-    function($scope, ActorResource, CharacterHandler){
+    ['$scope', 'Constants', 'ActorResource',
+                'CharacterHandler', 'CharacterResource',
+    function($scope, Constants, ActorResource,
+                                CharacterHandler, CharacterResource){
     $scope.closeDialog = function(){
         Overlay.close();
     };
-    $scope.add = function(input){
+    $scope.addActor = function(input){
         var character_id = CharacterHandler.addCharacterId;
         input['character_id'] = character_id;
         ActorResource.create(input, function(result){
             CharacterHandler.updateCharacter(character_id, result);
+            $scope.closeDialog();
+        });
+    };
+    $scope.addCharacter = function(input){
+        input['project_id'] = Constants.get('projectId');
+        CharacterResource.create(input, function(results){
+            for (var i = 0; i < results.length; i++)
+                CharacterHandler.addCharacter(results[i]);
             $scope.closeDialog();
         });
     };

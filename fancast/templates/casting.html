@@ -69,8 +69,21 @@
     </div>
     <div class="row greyFbox">
       <div class="center addWidth">
-        <div class="btn pointer" ng-click="openDialog(character.slug)">
+        <div class="btn pointer" 
+          ng-click="openDialog('addActorForm', character.slug)">
           Add Actor
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="span3 greyAbox staticCol">
+    <div class="characterCol row greyCbox">
+      <div class="media">
+        <div class="text-center namePadding">
+          <div class="btn pointer"
+            ng-click="openDialog('addCharacterForm')">
+            Add Character
+          </div>
         </div>
       </div>
     </div>
@@ -82,51 +95,86 @@
 
 {% block overlay %}
 {% verbatim %}
-<div class="dialog" id="dialog" ng-controller="CastingOverlay">
-  <div class="closebox pointer" id="closebox" 
-    ng-click="closeDialog()">X</div>
-  <div class="formbox">
-    <form novalidate class="simple-form" name="addActor">
+<div ng-controller="CastingOverlay">
+  <div class="dialog" id="dialog" ></div>
+
+  <div class="formbox hidden" id="addActorForm">
+    <div class="closebox pointer" id="closebox" ng-click="closeDialog()">
+      X
+    </div>
+    <form novalidate class="simple-form" name="addActorForm">
       <fieldset>
         <legend>Add Actor</legend>
         <label>Actor Name:</label>
         <input type="text" name="name" 
-                      ng-model="newactor.name" required/><br/>
-        <span class="error" ng-show="addActor.name.$error.required">
+        ng-model="newactor.name" required/><br/>
+        <span class="error" ng-show="addActorForm.name.$error.required">
           Actor Name is Required
         </span><br/>
-        <span class="error" ng-show="addActor.name.$error.text">
+        <span class="error" ng-show="addActorForm.name.$error.text">
           Not a valid Actor Name
         </span><br/>
         <label>Image URL:</label>
         <input type="url" name="image" 
-                        ng-model="newactor.image" required/><br/>
-        <span class="error" ng-show="addActor.image.$error.required">
+          ng-model="newactor.image" required/><br/>
+        <span class="error" ng-show="addActorForm.image.$error.required">
           Actor Image is Required
         </span><br/>
-        <span class="error" ng-show="addActor.image.$error.url">
+        <span class="error" ng-show="addActorForm.image.$error.url">
           Not a valid Image URL
         </span><br/>
-        <button ng-click="add(newactor)" >ADD</button>
-        <fieldset>
-        </form>
-      </div>
+        <button ng-click="addActor(newactor)" >ADD</button>
+      </fieldset>
+    </form>
+  </div>
+
+  <div class="formbox hidden" id="addCharacterForm">
+    <div class="closebox pointer" id="closebox" ng-click="closeDialog()">
+      X
     </div>
-    {% endverbatim %}
-    {% endblock overlay %}
+    <form novalidate class="simple-form" name="addCharacterForm">
+      <fieldset>
+        <legend>Add Character</legend>
+        <label>Character Name:</label>
+        <input type="text" name="name" 
+        ng-model="newcharacter.name" required/><br/>
+        <span class="error"
+                ng-show="addCharacterForm.name.$error.required">
+          Character Name is Required
+        </span><br/>
+        <span class="error" ng-show="addCharacterForm.name.$error.text">
+          Not a valid Character Name
+        </span><br/>
+        <label>Image URL:</label>
+        <input type="url" name="image" 
+        ng-model="newcharacter.image" required/><br/>
+        <span class="error"
+                ng-show="addCharacterForm.image.$error.required">
+          Character Image is Required
+        </span><br/>
+        <span class="error" ng-show="addCharacterForm.image.$error.url">
+          Not a valid Image URL
+        </span><br/>
+        <button ng-click="addCharacter(newcharacter)" >ADD</button>
+      </fieldset>
+    </form>
+  </div>
+</div>
+{% endverbatim %}
+{% endblock overlay %}
 
-    {% block javascript %}
-    <script>
-      Overlay.init();
-      angular.element(document).ready(function(){
-        castingApp.config(["$httpProvider", function($httpProvider){
-          $httpProvider.defaults.headers.common['X-CSRFToken'] = "{{ csrf_token|escapejs}}";
-        }]);
-      });
-      castingApp.constant("DjangoConstants",{
-        sessionID: '{{ sessionID }}',
-        projectId:'{{ object.slug }}'
-      });
+{% block javascript %}
+<script>
+  Overlay.init();
+  angular.element(document).ready(function(){
+    castingApp.config(["$httpProvider", function($httpProvider){
+      $httpProvider.defaults.headers.common['X-CSRFToken'] = "{{ csrf_token|escapejs}}";
+    }]);
+  });
+  castingApp.constant("DjangoConstants",{
+    sessionID: '{{ sessionID }}',
+    projectId:'{{ object.slug }}'
+  });
 
-    </script>
-    {% endblock javascript %}
+</script>
+{% endblock javascript %}

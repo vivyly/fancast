@@ -23,7 +23,8 @@ from .serializers import (ProjectSerializer,
                           ProspectSerializer,
                           ActorSerializer)
 
-from .forms import AddActor
+from .forms import (AddActor,
+                    AddCharacter)
 
 class JSONResponse(HttpResponse):
     """
@@ -136,7 +137,8 @@ def vote(request, slug):
         prospect_vote.vote_status = bool(vote_status)
         prospect_vote.save()
     prospects = Prospect.objects.filter(character=prospect.character)
-    serializer = ProspectSerializer(prospects, many=True, context = {'request':request})
+    serializer = ProspectSerializer(prospects, many=True,
+                                        context = {'request':request})
     serializer.is_valid()
     return JSONResponse(serializer.data)
 
@@ -155,9 +157,28 @@ def add_actor(request):
         if form.is_valid():
             character = form.save(request)
             prospects = Prospect.objects.filter(character=character)
-            serializer = ProspectSerializer(prospects, many=True, context = {'request':request})
+            serializer = ProspectSerializer(prospects, many=True,
+                                        context = {'request':request})
+            serializer.is_valid()
+            return JSONResponse(serializer.data)
+    return JSONResponse({})
+
+@csrf_exempt
+@requires_csrf_token
+def add_character(request):
+    if request.method == "POST":
+        #this is probably not the right way to do it, need
+        #to figure out why post params are coming in as a string
+        #instead of a QueryrDict
+        print request
+        params = simplejson.loads(request.body)
+        print params
+        form = AddCharacter(params)
+        if form.is_valid():
+            character = form.save()
+            serializer = CharacterSerializer([character], many=True,
+                                    context = {'request':request})
             serializer.is_valid()
             return JSONResponse(serializer.data)
         print 'ERRORS: %s' % form.errors
     return JSONResponse({})
-
