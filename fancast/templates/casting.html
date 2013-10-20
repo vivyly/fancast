@@ -9,6 +9,7 @@
 
 {% block js_head %}
 {{ block.super }}
+<script src="{% static 'js/overlay.js' %}"></script>
 <script src="{% static 'js/scripts.js' %}"></script>
 {% endblock js_head %}
 
@@ -68,27 +69,64 @@
     </div>
     <div class="row greyFbox">
       <div class="center addWidth">
-        <div class="btn">
+        <div class="btn pointer" ng-click="openDialog(character.slug)">
           Add Actor
         </div>
       </div>
     </div>
   </div>
 </div>
+
 {% endverbatim %}
 {% endblock content %}
 
-{% block javascript %}
-<script>
-  angular.element(document).ready(function(){
-    castingApp.config(["$httpProvider", function($httpProvider){
-      $httpProvider.defaults.headers.common['X-CSRFToken'] = "{{ csrf_token|escapejs}}";
-    }]);
-  });
-  castingApp.constant("DjangoConstants",{
-    sessionID: '{{ sessionID }}',
-    projectId:'{{ object.slug }}'
-  });
+{% block overlay %}
+{% verbatim %}
+<div class="dialog" id="dialog" ng-controller="CastingOverlay">
+  <div class="closebox pointer" id="closebox" 
+    ng-click="closeDialog()">X</div>
+  <div class="formbox">
+    <form novalidate class="simple-form" name="addActor">
+      <fieldset>
+        <legend>Add Actor</legend>
+        <label>Actor Name:</label>
+        <input type="text" name="name" 
+                      ng-model="newactor.name" required/><br/>
+        <span class="error" ng-show="addActor.name.$error.required">
+          Actor Name is Required
+        </span><br/>
+        <span class="error" ng-show="addActor.name.$error.text">
+          Not a valid Actor Name
+        </span><br/>
+        <label>Image URL:</label>
+        <input type="url" name="image" 
+                        ng-model="newactor.image" required/><br/>
+        <span class="error" ng-show="addActor.image.$error.required">
+          Actor Image is Required
+        </span><br/>
+        <span class="error" ng-show="addActor.image.$error.url">
+          Not a valid Image URL
+        </span><br/>
+        <button ng-click="add(newactor)" >ADD</button>
+        <fieldset>
+        </form>
+      </div>
+    </div>
+    {% endverbatim %}
+    {% endblock overlay %}
 
-</script>
-{% endblock javascript %}
+    {% block javascript %}
+    <script>
+      Overlay.init();
+      angular.element(document).ready(function(){
+        castingApp.config(["$httpProvider", function($httpProvider){
+          $httpProvider.defaults.headers.common['X-CSRFToken'] = "{{ csrf_token|escapejs}}";
+        }]);
+      });
+      castingApp.constant("DjangoConstants",{
+        sessionID: '{{ sessionID }}',
+        projectId:'{{ object.slug }}'
+      });
+
+    </script>
+    {% endblock javascript %}

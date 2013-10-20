@@ -32,6 +32,48 @@ body{
   padding:.5em;
 }
 
+.pointer{
+  cursor:pointer;
+}
+
+/**OVERLAY CSS ***************************************************/
+.overlay{
+  background:transparent repeat top left;
+  position:fixed;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
+  z-index:100;
+}
+
+.dialog{
+  position:fixed;
+  top:1em;
+  left:30%;
+  right:30%;
+  background-color:#fff;
+  color:#7f7f7f;
+  padding:3em;
+  border:.5em solid #ccc;
+  -moz-border-radius:2em;
+  -webkit-border-radius:2em;
+  -khtml-border-radius:2em;
+  -moz-box-shadow: 0 .5em 1em #333;
+  -webkit-box-shadow: 0 .5em 1em #333;
+  z-index:101;
+}
+
+div.closebox{
+  float:right;
+  width:1em;
+  height:1em;
+  background:transparent repeat top left;
+  margin:-2em -2em 0 0;
+  cursor:pointer;
+}
+/****************************************************************/
+
 /**CSS dedicated to the projects page **/
 
 .smallThumb{
@@ -96,4 +138,3 @@ body{
 .addWidth{
   width:7em;
 }
-

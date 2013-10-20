@@ -23,8 +23,11 @@
 
     {% block js_head %}
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
-      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular-resource.min.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+      <!--script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script-->
+      <!--script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular-resource.min.js"></script-->
+      <script src="{% static 'js/angular.min.js' %}"></script>
+      <script src="{% static 'js/angular-resource.min.js' %}"></script>
       <script src="{% static 'js/underscore-min.js' %}"></script>
     {% endblock js_head %}
 
@@ -36,10 +39,12 @@
       {% block content %}
         <p>Use this document as a way to quick start any new project.</p>
       {% endblock content %}
-
+        
     </div> <!-- /container -->
 
 
+    {% block overlay %}
+    {% endblock overlay %}
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->

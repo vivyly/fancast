@@ -1,26 +1,29 @@
 import simplejson
 
 from django.views import generic
+from django.http import HttpResponse
+from django.template import RequestContext
+from django.shortcuts import render_to_response
+from django.views.decorators.csrf import (csrf_exempt,
+                                         requires_csrf_token)
 from rest_framework import (viewsets,
                             generics,
                             )
+
+from rest_framework.renderers import JSONRenderer
 
 from .models import (Project,
                      Character,
                      Actor,
                      Prospect,
                      ProspectVote)
+
 from .serializers import (ProjectSerializer,
                           CharacterSerializer,
                           ProspectSerializer,
                           ActorSerializer)
 
-from django.http import HttpResponse
-from django.template import RequestContext
-from django.shortcuts import render_to_response
-from django.views.decorators.csrf import (csrf_exempt,
-                                         requires_csrf_token)
-from rest_framework.renderers import JSONRenderer
+from .forms import AddActor
 
 class JSONResponse(HttpResponse):
     """
@@ -136,4 +139,25 @@ def vote(request, slug):
     serializer = ProspectSerializer(prospects, many=True, context = {'request':request})
     serializer.is_valid()
     return JSONResponse(serializer.data)
+
+
+@csrf_exempt
+@requires_csrf_token
+def add_actor(request):
+    if request.method == "POST":
+        #this is probably not the right way to do it, need
+        #to figure out why post params are coming in as a string
+        #instead of a QueryrDict
+        print request
+        params = simplejson.loads(request.body)
+        print params
+        form = AddActor(params)
+        if form.is_valid():
+            character = form.save(request)
+            prospects = Prospect.objects.filter(character=character)
+            serializer = ProspectSerializer(prospects, many=True, context = {'request':request})
+            serializer.is_valid()
+            return JSONResponse(serializer.data)
+        print 'ERRORS: %s' % form.errors
+    return JSONResponse({})
 

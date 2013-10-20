@@ -177,6 +177,11 @@ REST_FRAMEWORK = {
 
 }
 
+#allowed CSRF Headers
+CORS_ALLOW_HEADERS = {
+    'X-CSRFToken',
+}
+
 # EMAILS
 
 
