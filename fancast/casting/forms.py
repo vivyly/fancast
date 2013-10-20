@@ -37,8 +37,7 @@ class AddActor(forms.Form):
             pass
         return data
 
-    def save(self, request):
-        sessionid = request.COOKIES.get('sessionid')
+    def save(self):
         data = self.cleaned_data
         character = data.get('character')
         name = data.get('name')
@@ -55,16 +54,7 @@ class AddActor(forms.Form):
             prospect.actor = actor
             prospect.character = character
             prospect.save()
-        try:
-            vote = ProspectVote.objects.get(prospect=prospect,
-                                            sessionid = sessionid)
-        except ProspectVote.DoesNotExist:
-            vote = ProspectVote()
-            vote.prospect = prospect
-            vote.sessionid = sessionid
-            vote.vote_status = 0
-            vote.save()
-        return character
+        return actor
 
 
 class AddCharacter(forms.Form):

@@ -148,12 +148,11 @@ def add_actor(request):
         #this is probably not the right way to do it, need
         #to figure out why post params are coming in as a string
         #instead of a QueryrDict
-        print request
         params = simplejson.loads(request.body)
-        print params
         form = AddActor(params)
         if form.is_valid():
-            character = form.save(request)
+            _actor = form.save(request)
+            character = Character.objects.get(slug=params.get('character_id'))
             prospects = Prospect.objects.filter(character=character)
             serializer = ProspectSerializer(prospects, many=True,
                                         context = {'request':request})

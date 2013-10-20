@@ -6,6 +6,7 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase, Client
+from django.test.client import RequestFactory
 from random import randint
 
 from .models import (Project,
@@ -13,6 +14,10 @@ from .models import (Project,
                     Prospect,
                     Actor,
                     ProspectVote)
+
+from .forms import (AddActor,
+                    AddCharacter)
+
 from fancast.lib.name import normalize
 
 
@@ -24,23 +29,8 @@ class SimpleTest(TestCase):
         self.assertEqual(1 + 1, 2)
 
 
-BEBOP = {"Spike Spiegel" : dict(image =  """http://upload.wikimedia.org\
-                                                /wikipedia/en/thumb/\
-                               f/f6/Spike_Spiegel_as_drawn_by_the_creators.jpg\
-                                /230px-Spike_Spiegel_as_drawn_by_the_creators.\
-                                jpg""",
-                           desc="""Spike is a fictional bounty hunter who was\
-                               born on Mars, June 26, 2044. According to the\
-                               anime guides, he is 27 years old and has fluffy\
-                               dark-green hair [3] and brown eyes; one of which\
-                               is artificial and lighter than the other. His\
-                               right eye was surgically replaced with a\
-                               cybernetic one. He is usually dressed in\
-                               a blue leisure suit, with a yellow shirt and\
-                               boots similar to those worn by Arsene Lupin III.\
-                               Spike often smokes cigarettes, despite rain or\
-                               "no smoking" signs.[4] He stands 6'1" and weighs\
-                               155 lbs.""",
+BEBOP = {"Spike Spiegel" : dict(image = """http://i387.photobucket.com/albums/oo311/GohanFury91/spike-spiegel-gun.jpg""",
+                           desc="""Spike is a fictional bounty hunter who was born on Mars, June 26, 2044. According to the anime guides, he is 27 years old and has fluffy dark-green hair [3] and brown eyes; one of which is artificial and lighter than the other. His right eye was surgically replaced with a cybernetic one. He is usually dressed in a blue leisure suit, with a yellow shirt and boots similar to those worn by Arsene Lupin III. Spike often smokes cigarettes, despite rain or "no smoking" signs.[4] He stands 6'1" and weighs 155 lbs.""",
                             order=0),
         "Faye Valentine" : dict(image="""http://images1.wikia.nocookie.net/__cb20090726171256/cowboybebop/images/5/5b/Faye_tall.jpg""",
                                 desc="""One of the members of the bounty hunting crew in the anime series Cowboy Bebop. Often seen with a cigarette and in a revealing outfit complete with bright yellow hot pants and a matching, revealing top, black suspenders, white boots, and a long-sleeved red shirt worn normally through the sleeves, not to mention her signature headband, she is unusually attractive, sporting a bob of violet hair, green eyes, fair skin, and a voluptuous body. Although appearing to be no more than her 23 years alive suggests, Faye is actually upwards of 74-years-old, having been put into cryogenic freeze after a space shuttle accident. During the course of the series (set in 2071), Faye manages to cross paths with Spike and Jet twice before she finally makes herself at home aboard their ship the second time, much to the consternation and disapproval of the two men, both of whom have their own reservations about women in general. Faye herself is brash, egotistical, and quite lazy, despite taking plenty of time to pamper and care for her own appearance. Faye has also been placed under arrest several times in the series and spends much time in handcuffs on the ship. She, at times, expects the boys to take care of bounties for her, while she sits by idly to reap the benefits and eat all their food, another source of conflict.""",
@@ -148,7 +138,7 @@ ACTOR = {'Joseph Gordon Levitt': dict(character="Spike Spiegel",
 }
 
 
-class CreateProject(TestCase):
+class CastingBase(TestCase):
     def create_project(self):
         proj = Project()
         proj.origin = 'anime'
@@ -169,6 +159,37 @@ class CreateProject(TestCase):
         chrt.save()
         return chrt
 
+    def create_actor(self, name, image, description):
+        actor = Actor()
+        actor.name = name
+        actor.normalized = normalize(name)
+        actor.image = image
+        actor.description = description
+        actor.save()
+        return actor
+
+    def create_vote(self, prospect, vote_stat):
+        vote = ProspectVote()
+        vote.sessionid = randint(100000, 999999)
+        vote.prospect = prospect
+        vote.vote_status = vote_stat
+        vote.save()
+
+    def create_relation(self, actor, character_name, data = None):
+        character = Character.objects.get(normalized=normalize(character_name))
+        prospect = Prospect()
+        prospect.actor = actor
+        prospect.character = character
+        prospect.save()
+        if data:
+            for _up_ct in range(0, data.get('upvotes', 0)):
+                self.create_vote(prospect, 1)
+
+            for _down_ct in range(0, data.get('downvotes', 0)):
+                self.create_vote(prospect, -1)
+
+
+class CreateProject(CastingBase):
     def test_project(self):
         proj = self.create_project()
         pid = proj.slug
@@ -178,7 +199,6 @@ class CreateProject(TestCase):
         self.assertEqual(p.derivation, 'movie')
         self.assertEqual(p.origin_title, 'Cowboy Bebop')
         self.assertEqual(p.derived_title, 'Cowboys in Space')
-
 
     def create_bebop(self, project):
         for name, data in BEBOP.iteritems():
@@ -200,36 +220,6 @@ class CreateProject(TestCase):
             self.assertEqual(character.image, char['image'])
             self.assertEqual(character.description, char['desc'])
             self.assertEqual(character.project, proj)
-
-    def create_actor(self, name, image, description):
-        actor = Actor()
-        actor.name = name
-        actor.normalized = normalize(name)
-        actor.image = image
-        actor.description = description
-        actor.save()
-        return actor
-
-    def create_vote(self, prospect, vote_stat):
-        vote = ProspectVote()
-        vote.sessionid = randint(100000, 999999)
-        vote.prospect = prospect
-        vote.vote_status = vote_stat
-        vote.save()
-
-    def create_relation(self, actor, character_name, data = None):
-        character = Character.objects.get(name=normalize(character_name))
-        prospect = Prospect()
-        prospect.actor = actor
-        prospect.character = character
-        prospect.save()
-        if data:
-            for _up_ct in range(0, data.get('upvotes', 0)):
-                self.create_vote(prospect, True)
-
-            for _down_ct in range(0, data.get('downvotes', 0)):
-                self.create_vote(prospect, False)
-
 
     def bebop_potential_actors(self):
         actors = []
@@ -253,7 +243,6 @@ class CreateProject(TestCase):
             if characters:
                 self.assertEqual(characters[0].name, data['character'])
 
-
     def test_votes(self):
         proj = self.create_project()
         self.create_bebop(proj)
@@ -267,17 +256,68 @@ class CreateProject(TestCase):
 
 
 
-class FormTest(TestCase):
-    def test_project_form(self):
-        dataform = dict(origin = 'anime',
-                          derivation = 'movie',
-                          origin_title = "Cowboy Bebop",
-                          derived_title = "Cowboys in Space")
-        c = Client()
-        response = c.post('/add/project/', dataform)
-        self.assertEqual(response.status, 200)
-        p = Project.objects.all()[0]
-        self.assertEqual(p.origin, 'anime')
-        self.assertEqual(p.derivation, 'movie')
-        self.assertEqual(p.origin_title, 'Cowboy Bebop')
-        self.assertEqual(p.derived_title, 'Cowboys in Space')
+class FormTest(CastingBase):
+    def project_form(self):
+        pass
+        #there is no form yet, Admin only interface. Implement later
+        #dataform = dict(origin = 'anime',
+        #                  derivation = 'movie',
+        #                  origin_title = "Cowboy Bebop",
+        #                  derived_title = "Cowboys in Space")
+        #for key, value in dataform.iteritems():
+        #    self.assertEqual(getattr(p, key), value)
+
+
+    def character_form(self, dataform):
+        form = AddCharacter(dataform)
+        if form.is_valid():
+            character = form.save()
+            for key, value in dataform.iteritems():
+                if key == 'project_id':
+                    project = character.project
+                    self.assertEqual(project.slug, value)
+                else:
+                    self.assertEqual(getattr(character, key), value)
+        else:
+            self.fail("Character Validation Failed")
+
+    def actor_form(self, dataform):
+        form = AddActor(dataform)
+        if form.is_valid():
+            actor = form.save()
+            for key, value in dataform.iteritems():
+                if key == 'character_id':
+                    character_id = dataform.get('character_id')
+                    try:
+                        character = Character.objects.get(slug=character_id)
+                        _prospect = Prospect.objects.get(actor=actor,
+                                                    character=character)
+                    except (Character.DoesNotExist, Prospect.DoesNotExist):
+                        self.fail("Character Actor relation not created")
+                else:
+                    self.assertEqual(getattr(actor, key), value)
+        else:
+            self.fail("Actor Validation Failed")
+
+    def vote_form(self, dataform):
+        pass
+
+
+    def test_add_character(self):
+        project = self.create_project()
+        dataform = dict(name='Lin',
+                        image="""http://images.wikia.com/cowboybebop/images/6/66/Lin.jpg""",
+                        project_id=project.slug)
+        self.character_form(dataform)
+
+    def test_add_actor(self):
+        project = self.create_project()
+        dataform = dict(name='Lin',
+                        image="""http://images.wikia.com/cowboybebop/images/6/66/Lin.jpg""",
+                        project_id=project.slug)
+        self.character_form(dataform)
+        character = Character.objects.get(name=dataform['name'])
+        actor_dataform = dict(name="Daniel Dae Kim",
+                              image="http://www.redbookmag.com/cm/redbook/images/pM/rbk-daniel-dae-kim.jpg",
+                              character_id=character.slug)
+        self.actor_form(actor_dataform)
