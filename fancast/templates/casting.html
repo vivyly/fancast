@@ -18,10 +18,17 @@
 {% block content %}
 <div class="row grey9box">
   <div class="row greyCbox">
-    {{ object.origin }} : {{ object.origin_title}}
+      <a href="{% url 'project-list' %}">
+          &laquo; Back
+      </a>
   </div>
   <div class="row greyFbox">
-    {{ object.derivation }} : {{ object.derived_title }}
+      <div class="greyCbox pull-left">
+          {{ object.origin }} : {{ object.origin_title}}
+      </div>
+      <div class="greyCbox pull-left"> 
+          {{ object.derivation }} : {{ object.derived_title }}
+      </div>
   </div>
 </div>
 {% verbatim %}

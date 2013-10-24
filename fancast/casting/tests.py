@@ -7,6 +7,7 @@ Replace this with more appropriate tests for your application.
 
 from django.test import TestCase, Client
 from django.test.client import RequestFactory
+from rest_framework.test import APIRequestFactory
 from random import randint
 
 from .models import (Project,
@@ -16,9 +17,12 @@ from .models import (Project,
                     ProspectVote)
 
 from .forms import (AddActor,
+                    AddVote,
                     AddCharacter)
 
 from fancast.lib.name import normalize
+
+from selenium.webdriver.firefox.webdriver import WebDriver as FirefoxDriver
 
 
 class SimpleTest(TestCase):
@@ -300,7 +304,21 @@ class FormTest(CastingBase):
             self.fail("Actor Validation Failed")
 
     def vote_form(self, dataform):
-        pass
+        form = AddVote(dataform)
+        if form.is_valid():
+            vote = form.save()
+            for key, value in dataform.iteritems():
+                if key == 'prospect_id':
+                    prospect_id = dataform.get('prospect_id')
+                    try:
+                        prospect = Prospect.objects.get(slug=prospect_id)
+                        self.assertEqual(prospect.slug, value)
+                    except (Prospect.DoesNotExist):
+                        self.fail("Prospect not created")
+                else:
+                    self.assertEqual(getattr(vote, key), value)
+        else:
+            self.fail("Vote Validation Failed")
 
 
     def test_add_character(self):
@@ -321,3 +339,69 @@ class FormTest(CastingBase):
                               image="http://www.redbookmag.com/cm/redbook/images/pM/rbk-daniel-dae-kim.jpg",
                               character_id=character.slug)
         self.actor_form(actor_dataform)
+
+    def test_vote(self):
+        project = self.create_project()
+        dataform = dict(name='Lin',
+                        image="""http://images.wikia.com/cowboybebop/images/6/66/Lin.jpg""",
+                        project_id=project.slug)
+        self.character_form(dataform)
+        character = Character.objects.get(name=dataform['name'])
+        actor_dataform = dict(name="Daniel Dae Kim",
+                              image="http://www.redbookmag.com/cm/redbook/images/pM/rbk-daniel-dae-kim.jpg",
+                              character_id=character.slug)
+        self.actor_form(actor_dataform)
+        actor = Actor.objects.get(name=actor_dataform['name'])
+        prospect = Prospect.objects.get(actor=actor, character=character)
+        vote_up_dataform = dict(sessionid = '123',
+                             prospect_id = prospect.slug,
+                             vote_status=1)
+        self.vote_form(vote_up_dataform)
+        self.assertEqual(prospect.upvotes, 1)
+        self.assertEqual(prospect.downvotes, 0)
+        self.assertEqual(prospect.totalvotes, 1)
+        vote_down_dataform = dict(sessionid = '123',
+                             prospect_id = prospect.slug,
+                             vote_status=-1)
+        self.vote_form(vote_down_dataform)
+        self.assertEqual(prospect.upvotes, 0)
+        self.assertEqual(prospect.downvotes, 1)
+        self.assertEqual(prospect.totalvotes, -1)
+        vote_none_dataform = dict(sessionid = '123',
+                             prospect_id = prospect.slug,
+                             vote_status=0)
+        self.vote_form(vote_none_dataform)
+        self.assertEqual(prospect.upvotes, 0)
+        self.assertEqual(prospect.downvotes, 0)
+        self.assertEqual(prospect.totalvotes, 0)
+
+
+
+class APITest(CastingBase):
+    def test_serializer(self):
+        pass
+
+
+class ViewTest(CastingBase):
+    pass
+
+
+class BrowserTest(CastingBase):
+    pass
+
+
+class FirefoxTest(BrowserTest):
+    def setUp(self):
+        self.driver = FirefoxDriver()
+
+    def tearDown(self):
+        self.driver.quit()
+
+
+
+class ChromeTest(BrowserTest):
+    pass
+
+
+class IETest(BrowserTest):
+    pass

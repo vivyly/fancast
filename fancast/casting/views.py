@@ -13,8 +13,7 @@ from rest_framework.renderers import JSONRenderer
 from .models import (Project,
                      Character,
                      Actor,
-                     Prospect,
-                     ProspectVote)
+                     Prospect)
 
 from .serializers import (ProjectSerializer,
                           CharacterSerializer,
@@ -22,6 +21,7 @@ from .serializers import (ProjectSerializer,
                           ActorSerializer)
 
 from .forms import (AddActor,
+                    AddVote,
                     AddCharacter)
 
 class JSONResponse(HttpResponse):
@@ -64,6 +64,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
 class CharacterViewSet(generics.ListCreateAPIView):
     model = Character
     serializer_class = CharacterSerializer
+    def get_queryset(self):
+        slug = self.kwargs.get('slug')
+        if slug:
+            return Character.objects.filter(project__slug=slug)
+        return Character.objects.none()
 
 class CharacterDetail(generics.RetrieveAPIView):
     model = Character
@@ -71,10 +76,7 @@ class CharacterDetail(generics.RetrieveAPIView):
     def get_queryset(self):
         slug = self.kwargs.get('slug')
         if slug:
-            try:
-                return Character.objects.filter(slug=slug)
-            except Character.DoesNotExist:
-                pass
+            return Character.objects.filter(slug=slug)
         return Character.objects.none()
 
 class ActorViewSet(generics.ListAPIView):
@@ -122,23 +124,20 @@ def vote(request, slug):
         #to figure out why post params are coming in as a string
         #instead of a QueryDict
         params = simplejson.loads(request.body)
-        vote_status = params.get('vote_status', 0)
+        params['sessionid'] = request.session.session_key
+        params['prospect_id'] = slug
+        form = AddVote(params)
+        if form.is_valid():
+            _vote = form.save()
+    try:
         prospect = Prospect.objects.get(slug=slug)
-        sessionid = request.session.session_key
-        try:
-            prospect_vote = ProspectVote.objects.get(prospect=prospect,
-                                    sessionid=sessionid)
-        except ProspectVote.DoesNotExist:
-            prospect_vote = ProspectVote()
-            prospect_vote.sessionid = sessionid
-            prospect_vote.prospect = prospect
-        prospect_vote.vote_status = int(vote_status)
-        prospect_vote.save()
-    prospects = Prospect.objects.filter(character=prospect.character)
-    serializer = ProspectSerializer(prospects, many=True,
-                                        context = {'request':request})
-    serializer.is_valid()
-    return JSONResponse(serializer.data)
+        prospects = Prospect.objects.filter(character=prospect.character)
+        serializer = ProspectSerializer(prospects, many=True,
+                                            context = {'request':request})
+        serializer.is_valid()
+        return JSONResponse(serializer.data)
+    except Prospect.DoesNotExist:
+        return JSONResponse({})
 
 
 @csrf_exempt
@@ -151,7 +150,7 @@ def add_actor(request):
         params = simplejson.loads(request.body)
         form = AddActor(params)
         if form.is_valid():
-            _actor = form.save(request)
+            _actor = form.save()
             character = Character.objects.get(slug=params.get('character_id'))
             prospects = Prospect.objects.filter(character=character)
             serializer = ProspectSerializer(prospects, many=True,
@@ -159,7 +158,7 @@ def add_actor(request):
             serializer.is_valid()
             return JSONResponse(serializer.data)
         else:
-            errors = [(k, v[0].__unicode__()) for k, v in
+            errors = [(k, v[0]) for k, v in
                                                 form.errors.items()]
             return JSONResponse({'errors':errors})
     return JSONResponse({})
@@ -182,7 +181,7 @@ def add_character(request):
             serializer.is_valid()
             return JSONResponse(serializer.data)
         else:
-            errors = [(k, v[0].__unicode__()) for k, v in
+            errors = [(k, v[0]) for k, v in
                                                 form.errors.items()]
-            return JSONResponse({'errors':errors})
+            return JSONResponse(errors)
     return JSONResponse({})

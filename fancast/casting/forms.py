@@ -8,6 +8,35 @@ from .models import (Project,
                      ProspectVote)
 from fancast.lib.name import normalize
 
+
+class AddVote(forms.Form):
+    sessionid = forms.CharField(required=True)
+    vote_status = forms.IntegerField(required=True)
+    prospect_id = forms.CharField(required=True)
+
+    def clean(self):
+        data = self.cleaned_data
+        prospect_id = data.get('prospect_id')
+        try:
+            prospect = Prospect.objects.get(slug=prospect_id)
+            data['prospect'] = prospect
+        except Prospect.DoesNotExist:
+            forms.ValidationError('Prospect does not Exist')
+        return data
+
+    def save(self):
+        data = self.cleaned_data
+        try:
+            vote = ProspectVote.objects.get(sessionid=data.get('sessionid'),
+                                            prospect = data.get('prospect'))
+        except ProspectVote.DoesNotExist:
+            vote = ProspectVote()
+            vote.sessionid = data.get('sessionid')
+            vote.prospect = data.get('prospect')
+        vote.vote_status = data.get('vote_status')
+        vote.save()
+        return vote
+
 class AddActor(forms.Form):
     name = forms.CharField(required=True)
     image = forms.URLField(required=True)

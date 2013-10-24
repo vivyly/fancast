@@ -24,7 +24,7 @@ admin.autodiscover()
 router = routers.DefaultRouter()
 router.register(r'projects', ProjectViewSet)
 
-SLUG = '''[a-zA-Z0-9_\-]+'''
+SLUG = r'[a-zA-Z0-9_\-]+'
 
 urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
@@ -47,5 +47,5 @@ urlpatterns = patterns('',
                                         namespace="rest_framework")),
     url(r'^casting/(?P<slug>%s)$' % SLUG,
                 ProjectDetailView.as_view(), name="project-detail"),
-    url(r'^', ProjectListView.as_view(), name="project-list"),
+    url(r'^', ProjectListView.as_view(), name="project-list"),#pylint: disable=E1120
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

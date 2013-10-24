@@ -110,6 +110,7 @@ castingApp.controller('CastingOverlay',
         ActorResource.create(input, function(result){
             CharacterHandler.updateCharacter(character_id, result);
             $scope.closeDialog();
+            $scope.cleanOverlay('addActorForm');
         });
     };
     $scope.addCharacter = function(input){
@@ -118,7 +119,13 @@ castingApp.controller('CastingOverlay',
             for (var i = 0; i < results.length; i++)
                 CharacterHandler.addCharacter(results[i]);
             $scope.closeDialog();
+            $scope.cleanOverlay('addCharacterForm');
         });
+    };
+    $scope.cleanOverlay = function(form_id){
+       $("#"+form_id+" input").each(function(){
+            $(this).val('');
+       }); 
     };
 
 }]);
